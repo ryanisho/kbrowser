@@ -99,7 +99,7 @@ class HtmlParser {
             pos++
             consumeWhitespace()
 
-            if (pos < input.length && input[pos] == '"') {
+            if (pos < input.length && input[pos] == '=') {
                 pos++
                 val valueEnd = input.indexOf('"', pos)
                 if (valueEnd != -1) {
@@ -144,5 +144,25 @@ class HtmlParser {
             }
         }
         return -1
+    }
+
+    companion object {
+        private val VOID_ELEMENTS =
+                setOf(
+                        "area",
+                        "base",
+                        "br",
+                        "col",
+                        "embed",
+                        "hr",
+                        "img",
+                        "input",
+                        "link",
+                        "meta",
+                        "param",
+                        "source",
+                        "track",
+                        "wbr"
+                )
     }
 }

@@ -4,6 +4,7 @@ import com.browser.html.HtmlParser
 import java.awt.*
 import java.net.HttpURLConnection
 import java.net.URI
+import java.util.Stack
 import javax.swing.*
 import javax.swing.event.HyperlinkEvent
 
@@ -23,7 +24,9 @@ class KBrowser : JFrame("KBrowser") {
                     }
                 }
             }
+
     private val parser = HtmlParser()
+    private val urlStack = Stack<String>()
 
     init {
         defaultCloseOperation = JFrame.EXIT_ON_CLOSE
@@ -34,6 +37,8 @@ class KBrowser : JFrame("KBrowser") {
                 JPanel(BorderLayout()).apply {
                     add(JLabel("URL: "), BorderLayout.WEST)
                     add(addressBar, BorderLayout.CENTER)
+                    val backButton = JButton("Back").apply { addActionListener { goBack() } }
+                    add(backButton, BorderLayout.EAST)
                 }
 
         // url loading on enter
@@ -51,6 +56,11 @@ class KBrowser : JFrame("KBrowser") {
                     if (!urlString.startsWith("http")) {
                         "http://$urlString"
                     } else urlString
+
+            // add current url to stack
+            if (addressBar.text.isNotEmpty() && addressBar.text != normalizedUrl) {
+                urlStack.push(addressBar.text)
+            }
 
             object : SwingWorker<String, Void>() {
                         override fun doInBackground(): String {
@@ -81,6 +91,15 @@ class KBrowser : JFrame("KBrowser") {
                     "Error",
                     JOptionPane.ERROR_MESSAGE
             )
+        }
+    }
+
+    // goBack: loads the previous URL in the stack
+    private fun goBack() {
+        if (urlStack.isNotEmpty()) {
+            val prevUrl = urlStack.pop()
+            addressBar.text = prevUrl
+            loadUrl(prevUrl)
         }
     }
 

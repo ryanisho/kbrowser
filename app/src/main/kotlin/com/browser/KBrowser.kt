@@ -9,9 +9,10 @@ import javax.swing.*
 class KBrowser : JFrame("KBrowser") {
     private val addressBar = JTextField()
     private val contentArea =
-            JTextArea().apply {
+            JEditorPane().apply {
                 isEditable = false
-                font = Font("Monospaced", Font.PLAIN, 12)
+                // font = Font("Monospaced", Font.PLAIN, 12)
+                contentType = "text/html"
             }
     private val parser = HtmlParser()
 
@@ -50,8 +51,9 @@ class KBrowser : JFrame("KBrowser") {
                         override fun done() {
                             try {
                                 val htmlContent = get()
-                                val htmlTree = parser.parse(htmlContent)
-                                contentArea.text = renderTree(htmlTree)
+                                // val htmlTree = parser.parse(htmlContent)
+                                // contentArea.text = renderTree(htmlTree)
+                                contentArea.text = htmlContent
                             } catch (e: Exception) {
                                 JOptionPane.showMessageDialog(
                                         this@KBrowser,

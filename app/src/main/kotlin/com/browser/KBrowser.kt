@@ -5,14 +5,23 @@ import java.awt.*
 import java.net.HttpURLConnection
 import java.net.URI
 import javax.swing.*
+import javax.swing.event.HyperlinkEvent
 
 class KBrowser : JFrame("KBrowser") {
     private val addressBar = JTextField()
     private val contentArea =
             JEditorPane().apply {
                 isEditable = false
-                // font = Font("Monospaced", Font.PLAIN, 12)
                 contentType = "text/html"
+
+                // hyperlink handling
+                addHyperlinkListener { event ->
+                    if (event.eventType == HyperlinkEvent.EventType.ACTIVATED) {
+                        var url = event.url.toString()
+                        addressBar.text = url
+                        loadUrl(event.url.toString())
+                    }
+                }
             }
     private val parser = HtmlParser()
 
@@ -80,36 +89,5 @@ class KBrowser : JFrame("KBrowser") {
         val url = URI(urlString).toURL()
         val connection = url.openConnection() as HttpURLConnection
         return connection.inputStream.bufferedReader().use { it.readText() }
-    }
-
-    // renderHtml: renders the HTML content in the content area
-    private fun renderTree(node: com.browser.html.HtmlNode, indent: Int = 0): String {
-        val sb = StringBuilder()
-        val padding = " ".repeat(indent)
-
-        when (node) {
-            is com.browser.html.HtmlNode.Element -> {
-                sb.appendLine("$padding<${node.tagName}${renderAttributes(node.attributes)}>")
-                // render the children
-                node.children.forEach { child -> sb.append(renderTree(child, indent + 1)) }
-                if (node.children.isNotEmpty()) {
-                    sb.appendLine("$padding</${node.tagName}>")
-                }
-            }
-            is com.browser.html.HtmlNode.Text -> {
-                if (node.content.isNotBlank()) {
-                    sb.appendLine("$padding${node.content}")
-                }
-            }
-        }
-        return sb.toString()
-    }
-
-    // renderHtml: renders the HTML content in the content area
-    private fun renderAttributes(attributes: Map<String, String>): String {
-        if (attributes.isEmpty()) return ""
-        return attributes.entries.joinToString(" ", prefix = " ") { (key, value) ->
-            "$key\"$value\""
-        }
     }
 }
